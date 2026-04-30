@@ -1,38 +1,62 @@
-NAME	:= minishell
+NAME        := minishell
 
-S	:= src/
-O	:= obj/
+# --- DIRECTORIES ---
 
-CC	:= cc 
-CFLAGS := -Wall -Wextra -Werror -g
+SRCDIR      := src
+INCDIR      := inc
+OBJDIR      := obj
+LIBDIR      := libft
 
-SRCS	:= $S/main.c $S/init.c $S/utils.c $S/signals.c $S/builtins_utils.c $S/ft_cd.c $S/ft_pwd.c $S/env.c $S/ft_echo.c $S/ft_env.c $S/ft_export.c $S/ft_unset.c $S/ft_exit.c $S/pathing.c $S/signals2.c $S/ft_loop.c $S/ft_free_shell.c $S/ft_free_tree.c $S/ft_tree_nodes.c $S/parse_cmd.c $S/parse_redir.c $S/parse_redir_util.c $S/exec.c $S/handle_pipe.c $S/handle_string.c $S/handle_string_1.c $S/parse_exec.c $S/redir.c $S/handle_wo_pipe.c $S/handle_string_2.c $S/init_1.c
+# --- SOURCES ---
 
-OBJS	:= $(SRCS:$S/%.c=$O/%.o)
+SRC         := main.c init.c utils.c signals.c builtins_utils.c ft_cd.c \
+               ft_pwd.c env.c ft_echo.c ft_env.c ft_export.c ft_unset.c \
+               ft_exit.c pathing.c signals2.c ft_loop.c ft_free_shell.c \
+               ft_free_tree.c ft_tree_nodes.c parse_cmd.c parse_redir.c \
+               parse_redir_util.c exec.c handle_pipe.c handle_string.c \
+               handle_string_1.c parse_exec.c redir.c handle_wo_pipe.c \
+               handle_string_2.c init_1.c
 
-LIBFT	:= libft/libft.a
-INCS	:= -Iinc -I/home/linuxbrew/.linuxbrew/opt/readline/include
+SRCS        := $(addprefix $(SRCDIR)/, $(SRC))
+OBJS        := $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(SRCS))
 
-all: $(LIBFT) $(NAME)
+# --- LIBRARIES ---
+
+LIBFT       := $(LIBDIR)/libft.a
+
+# --- FLAGS ---
+
+CC          := cc
+CFLAGS      := -Wall -Wextra -Werror -g -I$(INCDIR) -I$(LIBDIR)
+LDLIBS      := $(LIBFT) -lreadline
+
+# --- COMMANDS ---
+
+RM          := rm -rf
+MKDIR       := mkdir -p
+
+# --- RULES ---
+
+.PHONY: all clean fclean re
+
+all: $(NAME)
+
+$(NAME): $(LIBFT) $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) $(LDLIBS) -o $(NAME)
 
 $(LIBFT):
-		make -C libft
+	$(MAKE) -C $(LIBDIR)
 
-$O/%.o: $S/%.c
-		@mkdir -p $(@D)
-		$(CC) $(CFLAGS) $(INCS) -c $< -o $@
-
-$(NAME) : $(LIBFT) $(OBJS)
-		$(CC) $(OBJS) $(LIBFT) -o $(NAME) -lreadline -L /home/linuxbrew/.linuxbrew/opt/readline/lib
+$(OBJDIR)/%.o: $(SRCDIR)/%.c
+	@$(MKDIR) $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-		rm -f $(OBJS)
-		make clean -C libft
+	$(RM) $(OBJDIR)
+	@$(MAKE) -C $(LIBDIR) clean
 
 fclean: clean
-		rm -f $(NAME)
-		rm -f $(LIBFT)
+	$(RM) $(NAME)
+	@$(MAKE) -C $(LIBDIR) fclean
 
 re: fclean all
-
-.PHONY: all, clean, fclean, re

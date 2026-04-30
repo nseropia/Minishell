@@ -1,33 +1,82 @@
-### Objective
+# Minishell
 
-The goal of the Minishell project is to pair-develop a simple, functional shell program, similar to a basic version of bash. This project focuses on enhancing knowledge of process management, file descriptors in C as well as team work. This project was developed with Mauri Zalazar @smzalazar.
+A Unix shell implemented in C with parsing, pipelines, redirections, environment expansion, built-ins, and process management.
 
-### Project Requirements
+![C](https://img.shields.io/badge/C-Language-00599C?style=plastic&logo=c&logoColor=white)
+![Unix Shell](https://img.shields.io/badge/Unix-Shell-222222?style=plastic)
+![42 Berlin](https://img.shields.io/badge/Made_for-42_Berlin-black?style=plastic)
 
-- **Language**: C
-- **Error Handling**: Functions should be robust and handle errors gracefully without causing crashes.
-- **Memory Management**: Properly manage heap memory to avoid leaks.
-- **Makefile**: Include rules for `$(NAME)`, `all`, `clean`, `fclean`, and `re`. Ensure the Makefile does not perform unnecessary recompilations.
+## Why this project matters
 
-### Core Features
+Minishell demonstrates core Unix systems programming concepts in a concrete, user-facing program. It required building a parser, managing processes and file descriptors, implementing pipelines and redirections, handling signals, and reproducing expected shell behavior while keeping memory and runtime behavior under control.
 
-- **Prompt Display**: Show a prompt for user commands.
-- **Command History**: Maintain a history of executed commands.
-- **Command Execution**: Locate and execute the correct program based on the PATH environment variable or relative/absolute paths.
-- **Signal Handling**: Use minimal global variables for signal management to ensure thread safety and reliability.
-- **Quote Handling**: Properly handle single and double quotes in commands.
-- **Redirections**: Support input (`<`), output (`>`), append (`>>`), and here-document (`<<`) redirections.
-- **Pipes**: Implement piping (`|`) between commands.
-- **Environment Variables**: Support expansion of environment variables.
-- **Exit Status**: Handle the special variable `$?` to show the exit status of the last executed command.
-- **Interactive Mode**:
-    - `ctrl-C`: Display a new prompt.
-    - `ctrl-D`: Exit the shell.
-    - `ctrl-\`: Ignore.
-- **Built-in Commands**: Implement `echo` with `n`, `cd`, `pwd`, `export`, `unset`, `env`, and `exit`.
+## Project in action
 
-### Implementation
+![minishell demo](assets/minishell-demo.gif)
 
-- Used structs to represent nodes for pipe symbol, redirection symbol and exec.
-- Parsing is done using recursive descent parser.
-- Execution is achieved by walking the tree recursively. “executing” the nodes and creating child processes (fork function) as required.
+## Quick start
+
+Install dependencies:
+
+```bash
+sudo apt update
+sudo apt install build-essential libreadline-dev
+```
+
+Build and run:
+
+```bash
+make
+./minishell
+```
+
+## Usage
+
+Launch the shell:
+
+```bash
+./minishell
+```
+
+Example commands:
+
+```bash
+echo hello world
+pwd
+export TEST=42
+echo $TEST
+ls -l | grep minishell
+cat < Makefile | wc -l > outfile
+```
+
+Interactive behavior:
+
+- `Ctrl-C` shows a new prompt
+- `Ctrl-D` exits the shell
+- `Ctrl-\` is ignored
+
+## Supported features
+
+- Interactive prompt with command history
+- Command resolution through `PATH`, relative paths, and absolute paths
+- Single and double quote handling
+- Environment variable expansion, including `$?`
+- Redirections: `<`, `>`, `>>`, `<<`
+- Pipelines with `|`
+- Built-ins: `echo`, `cd`, `pwd`, `export`, `unset`, `env`, `exit`
+- Signal handling for interactive mode
+
+## Technical overview
+
+At a high level, Minishell:
+
+1. reads user input through Readline;
+2. tokenizes and parses the command line into an execution tree;
+3. represents commands, pipes, and redirections as structured nodes;
+4. expands environment variables and resolves command paths;
+5. configures pipes and file descriptor redirections;
+6. executes built-ins directly where appropriate;
+7. forks child processes for external commands and pipeline stages;
+8. waits on child processes and propagates exit status.
+
+The shell uses a recursive descent parser and executes the resulting command tree recursively, creating child processes as needed.
